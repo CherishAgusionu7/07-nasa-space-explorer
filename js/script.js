@@ -83,6 +83,23 @@ function createGalleryCard(item, index) {
 
 // Open the modal and fill it with the selected APOD details
 function openModal(item) {
+	console.log('[Modal Debug] NASA item clicked:', item);
+	console.log('[Modal Debug] modal element:', imageModal);
+	console.log('[Modal Debug] modal image element:', modalImage);
+	console.log('[Modal Debug] modal title element:', modalTitle);
+	console.log('[Modal Debug] modal date element:', modalDate);
+	console.log('[Modal Debug] modal explanation element:', modalExplanation);
+
+	if (!item || typeof item !== 'object') {
+		console.error('[Modal Debug] No valid NASA item was provided to openModal.');
+		return;
+	}
+
+	if (!imageModal || !modalImage || !modalTitle || !modalDate || !modalExplanation) {
+		console.error('[Modal Debug] One or more modal elements are missing in index.html.');
+		return;
+	}
+
 	lastFocusedElement = document.activeElement;
 
 	const modalPreviewImage = item.media_type === 'video'
@@ -144,8 +161,13 @@ function handleGallerySelection(event) {
 	const selectedIndex = Number(card.dataset.index);
 	const selectedItem = currentGalleryItems[selectedIndex];
 
+	console.log('[Modal Debug] selected card index:', selectedIndex);
+	console.log('[Modal Debug] selected NASA item passed to openModal:', selectedItem);
+
 	if (selectedItem) {
 		openModal(selectedItem);
+	} else {
+		console.error('[Modal Debug] No NASA item found for selected card index.');
 	}
 }
 
