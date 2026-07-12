@@ -18,6 +18,7 @@ const modalBackdrop = document.querySelector('.modal-backdrop');
 const nasaBaseUrl = 'https://api.nasa.gov/planetary/apod';
 const apiKey = 'DEMO_KEY';
 let currentGalleryItems = [];
+let lastFocusedElement = null;
 
 // Fun facts shown each time the app refreshes
 const spaceFacts = [
@@ -82,6 +83,8 @@ function createGalleryCard(item) {
 
 // Open the modal and fill it with the selected APOD details
 function openModal(item) {
+	lastFocusedElement = document.activeElement;
+
 	const modalPreviewImage = item.media_type === 'video' ? item.thumbnail_url : (item.hdurl || item.url);
 
 	modalImage.src = modalPreviewImage;
@@ -100,15 +103,28 @@ function openModal(item) {
 
 	imageModal.classList.remove('hidden');
 	imageModal.setAttribute('aria-hidden', 'false');
+	imageModal.inert = false;
+	closeModalButton.focus();
 }
 
 // Close and reset the modal content
 function closeModal() {
+	const focusTarget =
+		lastFocusedElement instanceof HTMLElement && document.contains(lastFocusedElement)
+			? lastFocusedElement
+			: getImagesButton;
+
+	if (imageModal.contains(document.activeElement)) {
+		focusTarget.focus();
+	}
+
 	imageModal.classList.add('hidden');
 	imageModal.setAttribute('aria-hidden', 'true');
+	imageModal.inert = true;
 	modalImage.src = '';
 	modalVideoAnchor.href = '#';
 	modalVideoLink.classList.add('hidden');
+	lastFocusedElement = null;
 }
 
 // Handle click and keyboard interaction on gallery cards
@@ -207,3 +223,6 @@ document.addEventListener('keydown', (event) => {
 		closeModal();
 	}
 });
+
+// Keep modal unfocusable while hidden.
+imageModal.inert = true;
