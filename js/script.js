@@ -16,7 +16,7 @@ const modalBackdrop = document.querySelector('.modal-backdrop');
 
 // NASA API endpoint and demo key (good for classroom projects)
 const nasaBaseUrl = 'https://api.nasa.gov/planetary/apod';
-const apiKey = 'DEMO_KEY';
+const apiKey = 'WaCOT6DeEmsxH3wXjeiqw2tbUTEdLD11s8ggMw0o';
 let currentGalleryItems = [];
 let lastFocusedElement = null;
 
