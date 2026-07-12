@@ -253,4 +253,6 @@ document.addEventListener('keydown', (event) => {
 });
 
 // Keep modal unfocusable while hidden.
+imageModal.classList.add('hidden');
+imageModal.setAttribute('aria-hidden', 'true');
 imageModal.inert = true;
