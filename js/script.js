@@ -62,7 +62,7 @@ function showErrorState(message) {
 }
 
 // Build one gallery card for each APOD item
-function createGalleryCard(item) {
+function createGalleryCard(item, index) {
 	const previewImage = item.media_type === 'video' ? item.thumbnail_url : item.url;
 	const mediaLabel = item.media_type === 'video' ? 'Video' : 'Image';
 	const videoLinkMarkup =
@@ -71,7 +71,7 @@ function createGalleryCard(item) {
 			: '';
 
 	return `
-		<article class="gallery-item" data-date="${item.date}" tabindex="0">
+		<article class="gallery-item" data-index="${index}" tabindex="0">
 			<img src="${previewImage}" alt="${item.title}" />
 			<p><strong>${mediaLabel}</strong></p>
 			<p><strong>${item.title}</strong></p>
@@ -85,13 +85,18 @@ function createGalleryCard(item) {
 function openModal(item) {
 	lastFocusedElement = document.activeElement;
 
-	const modalPreviewImage = item.media_type === 'video' ? item.thumbnail_url : (item.hdurl || item.url);
+	const modalPreviewImage = item.media_type === 'video'
+		? item.thumbnail_url
+		: (item.hdurl || item.url);
+	const hasPreviewImage = Boolean(modalPreviewImage);
 
-	modalImage.src = modalPreviewImage;
-	modalImage.alt = item.title;
-	modalTitle.textContent = item.title;
-	modalDate.textContent = item.date;
-	modalExplanation.textContent = item.explanation;
+	// Assign all content before showing the modal.
+	modalImage.src = hasPreviewImage ? modalPreviewImage : '';
+	modalImage.alt = item.title || 'NASA APOD media';
+	modalImage.classList.toggle('hidden', !hasPreviewImage);
+	modalTitle.textContent = item.title || 'Untitled APOD entry';
+	modalDate.textContent = item.date || 'Date unavailable';
+	modalExplanation.textContent = item.explanation || 'No NASA explanation is available for this entry.';
 
 	if (item.media_type === 'video') {
 		modalVideoAnchor.href = item.url;
@@ -122,6 +127,7 @@ function closeModal() {
 	imageModal.setAttribute('aria-hidden', 'true');
 	imageModal.inert = true;
 	modalImage.src = '';
+	modalImage.classList.remove('hidden');
 	modalVideoAnchor.href = '#';
 	modalVideoLink.classList.add('hidden');
 	lastFocusedElement = null;
@@ -135,8 +141,8 @@ function handleGallerySelection(event) {
 		return;
 	}
 
-	const selectedDate = card.dataset.date;
-	const selectedItem = currentGalleryItems.find((item) => item.date === selectedDate);
+	const selectedIndex = Number(card.dataset.index);
+	const selectedItem = currentGalleryItems[selectedIndex];
 
 	if (selectedItem) {
 		openModal(selectedItem);
@@ -195,7 +201,7 @@ async function fetchApodByDateRange() {
 		galleryItems.sort((a, b) => (a.date < b.date ? 1 : -1));
 		currentGalleryItems = galleryItems;
 
-		gallery.innerHTML = galleryItems.map(createGalleryCard).join('');
+		gallery.innerHTML = galleryItems.map((item, index) => createGalleryCard(item, index)).join('');
 	} catch (error) {
 		showErrorState('Could not load NASA images right now. Please try again.');
 		console.error(error);
